@@ -7,9 +7,21 @@
 
 package org.usfirst.frc.team1529.robot;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.CounterBase.EncodingType;
+import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -19,20 +31,39 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends IterativeRobot {
-	private static final String kDefaultAuto = "Default";
-	private static final String kCustomAuto = "My Auto";
-	private String m_autoSelected;
-	private SendableChooser<String> m_chooser = new SendableChooser<>();
+	/**VictorSPX Left = new VictorSPX(0);
+	VictorSPX Middle = new VictorSPX(2);
+	VictorSPX Right = new VictorSPX(1);
+	Joystick Xbox = new Joystick(0);**/
+	Talon FrontLeft;
+	Talon RearLeft;
+	Talon FrontRight;
+	Talon RearRight;
+	//Joystick Xbox = new Joystick(0);
+	private ADXRS450_Gyro gyro;
+	private double kp = 0.03;
 
+	private Joystick left;
+	private Joystick right;
+	private Encoder enc;
+	private Robot myRobot;
+	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
 	public void robotInit() {
-		m_chooser.addDefault("Default Auto", kDefaultAuto);
-		m_chooser.addObject("My Auto", kCustomAuto);
-		SmartDashboard.putData("Auto choices", m_chooser);
+		//enc.reset();
+		gyro = new ADXRS450_Gyro();
+		gyro.calibrate();
+		left = new Joystick(2);
+		right = new Joystick(3);
+		 FrontLeft = new Talon(7);
+		 RearLeft = new Talon(6);
+		 FrontRight = new Talon(9);
+		 RearRight =new Talon(8);
+		
 	}
 
 	/**
@@ -48,10 +79,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		m_autoSelected = m_chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + m_autoSelected);
+		
 	}
 
 	/**
@@ -59,22 +87,55 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
-		switch (m_autoSelected) {
-			case kCustomAuto:
-				// Put custom auto code here
-				break;
-			case kDefaultAuto:
-			default:
-				// Put default auto code here
-				break;
-		}
+		
+		//myRobot.drive(-1.0, -angle*kp);
+		
+		
 	}
+	@Override
+	public void teleopInit(){
+		
+		gyro.reset();
+		
+	}
+	
 
 	/**
 	 * This function is called periodically during operator control.
 	 */
 	@Override
 	public void teleopPeriodic() {
+		left.getRawAxis(1);
+		right.getRawAxis(1);
+	
+		FrontLeft.set(-right.getRawAxis(1));
+		RearLeft.set(-right.getRawAxis(1));
+		FrontRight.set(left.getRawAxis(1));
+		RearRight.set(left.getRawAxis(1));
+		
+		//encoder
+		//enc = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
+		//enc.setMaxPeriod(.5);
+		
+		//enc.setReverseDirection(true);
+		
+		/**	double axis = Xbox.getRawAxis(1);
+		double axis1 = Xbox.getRawAxis(5);
+	
+		 //xbox configuration
+		//double but-ton = Xbox.getRawButton(1);
+		FrontLeft.set(-axis);
+		RearLeft.set(-axis);
+		FrontRight.set(axis1);
+		RearRight.set(axis1);
+		Left.set(ControlMode.PercentOutput, Xbox.getRawAxis(5));
+		Middle.set(ControlMode.PercentOutput, 50);
+		Right.set(ControlMode.PercentOutput, 100);**/
+		//gyro configuration
+		double angle = gyro.getAngle();
+		double rate = gyro.getRate();
+		System.out.println(angle);
+		
 	}
 
 	/**
@@ -82,5 +143,6 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void testPeriodic() {
+		
 	}
 }
