@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.CounterBase.EncodingType;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.ADXRS450_Gyro; // this fixed gyro
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.buttons.JoystickButton;
 
@@ -63,6 +63,8 @@ public class Robot extends IterativeRobot {
 		 RearLeft = new Talon(6);
 		 FrontRight = new Talon(9);
 		 RearRight =new Talon(8);
+		 enc = new Encoder(8,9,false, Encoder.EncodingType.k2X);
+		 enc.setDistancePerPulse(7.5);
 		
 	}
 
@@ -79,7 +81,7 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousInit() {
-		
+		gyro.reset();
 	}
 
 	/**
@@ -87,7 +89,37 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void autonomousPeriodic() {
+		//System.out.println(gyro.getAngle());
+		/**if (gyro.getAngle() < 90) {
+			FrontLeft.set(.5);
+			RearLeft.set(.5);
+			FrontRight.set(.5);
+			RearRight.set(.5);
+		}
+		else{
+			FrontLeft.set(0);
+			RearLeft.set(0);
+			FrontRight.set(0);
+			RearRight.set(0);
+		}**/
+		/**FrontLeft.set(.5);
+		RearLeft.set(.5);
+		FrontRight.set(-.5);
+		RearRight.set(-.5);*/
 		
+		if(enc.get() > -50){
+			FrontLeft.set(.5);
+			RearLeft.set(.5);
+			FrontRight.set(-.5);
+			RearRight.set(-.5);
+		}
+		else{
+			FrontLeft.set(0);
+			FrontRight.set(-0);
+			RearLeft.set(0);
+			RearRight.set(-0);
+		}
+		System.out.println(enc.get());
 		//myRobot.drive(-1.0, -angle*kp);
 		
 		
