@@ -8,11 +8,10 @@
 package org.usfirst.frc.team1529.robot;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,8 +32,8 @@ import edu.wpi.first.wpilibj.buttons.JoystickButton;
 public class Robot extends IterativeRobot {
 	/**VictorSPX Left = new VictorSPX(0);
 	VictorSPX Middle = new VictorSPX(2);
-	VictorSPX Right = new VictorSPX(1);
-	Joystick Xbox = new Joystick(0);**/
+	VictorSPX Right = new VictorSPX(1);**/
+	//Joystick Xbox = new Joystick(0);
 	Talon FrontLeft;
 	Talon RearLeft;
 	Talon FrontRight;
@@ -47,14 +46,19 @@ public class Robot extends IterativeRobot {
 	private Joystick right;
 	private Encoder enc;
 	private Robot myRobot;
+	int angle;
+	
+	static int ENCODER_OFFSET;
+	int step = 0;
 	
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	@Override
+	
 	public void robotInit() {
-		//enc.reset();
+		ENCODER_OFFSET = 12;
 		gyro = new ADXRS450_Gyro();
 		gyro.calibrate();
 		left = new Joystick(2);
@@ -63,8 +67,9 @@ public class Robot extends IterativeRobot {
 		 RearLeft = new Talon(6);
 		 FrontRight = new Talon(9);
 		 RearRight =new Talon(8);
-		 enc = new Encoder(8,9,false, Encoder.EncodingType.k2X);
-		 enc.setDistancePerPulse(7.5);
+		 enc = new Encoder(8,9,false, Encoder.EncodingType.k4X);
+		 enc.setDistancePerPulse((7.5*3.14159)/360);
+		 
 		
 	}
 
@@ -82,6 +87,9 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousInit() {
 		gyro.reset();
+		enc.reset();
+		
+		
 	}
 
 	/**
@@ -90,40 +98,42 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void autonomousPeriodic() {
 		//System.out.println(gyro.getAngle());
-		/**if (gyro.getAngle() < 90) {
-			FrontLeft.set(.5);
-			RearLeft.set(.5);
-			FrontRight.set(.5);
-			RearRight.set(.5);
-		}
-		else{
-			FrontLeft.set(0);
-			RearLeft.set(0);
-			FrontRight.set(0);
-			RearRight.set(0);
-		}**/
-		/**FrontLeft.set(.5);
+		
+		System.out.println(enc.getDistance());
+		
+		FrontLeft.set(.5);
 		RearLeft.set(.5);
 		FrontRight.set(-.5);
-		RearRight.set(-.5);*/
+		RearRight.set(-.5);
 		
-		if(enc.get() > -50){
+		if(enc.getDistance() > -144 + ENCODER_OFFSET){
+
 			FrontLeft.set(.5);
+			FrontRight.set(.5);
 			RearLeft.set(.5);
-			FrontRight.set(-.5);
-			RearRight.set(-.5);
+			RearRight.set(.5);
+			gyro.reset();
 		}
-		else{
+		
+		if(gyro.getAngle() > 90){
+		FrontLeft.set(.5);
+		RearLeft.set(.5);
+		FrontRight.set(-.5);
+		RearRight.set(-.5);
+		enc.reset();
+		}
+		
+		if(enc.getDistance() > -144 + ENCODER_OFFSET){
+			
 			FrontLeft.set(0);
 			FrontRight.set(-0);
 			RearLeft.set(0);
 			RearRight.set(-0);
+			
 		}
-		System.out.println(enc.get());
-		//myRobot.drive(-1.0, -angle*kp);
-		
 		
 	}
+	
 	@Override
 	public void teleopInit(){
 		
@@ -137,13 +147,11 @@ public class Robot extends IterativeRobot {
 	 */
 	@Override
 	public void teleopPeriodic() {
-		left.getRawAxis(1);
-		right.getRawAxis(1);
-	
-		FrontLeft.set(-right.getRawAxis(1));
-		RearLeft.set(-right.getRawAxis(1));
-		FrontRight.set(left.getRawAxis(1));
-		RearRight.set(left.getRawAxis(1));
+
+		//FrontLeft.set(-right.getRawAxis(1));
+		//RearLeft.set(-right.getRawAxis(1));
+		//FrontRight.set(left.getRawAxis(1));
+		//RearRight.set(left.getRawAxis(1));
 		
 		//encoder
 		//enc = new Encoder(0, 1, false, Encoder.EncodingType.k4X);
@@ -151,18 +159,21 @@ public class Robot extends IterativeRobot {
 		
 		//enc.setReverseDirection(true);
 		
-		/**	double axis = Xbox.getRawAxis(1);
-		double axis1 = Xbox.getRawAxis(5);
+		//double axis = Xbox.getRawAxis(1);
+		//double axis1 = Xbox.getRawAxis(5);
+	
+		left.getRawAxis(1);
+		right.getRawAxis(1);
 	
 		 //xbox configuration
-		//double but-ton = Xbox.getRawButton(1);
-		FrontLeft.set(-axis);
-		RearLeft.set(-axis);
-		FrontRight.set(axis1);
-		RearRight.set(axis1);
-		Left.set(ControlMode.PercentOutput, Xbox.getRawAxis(5));
-		Middle.set(ControlMode.PercentOutput, 50);
-		Right.set(ControlMode.PercentOutput, 100);**/
+		//double button = Xbox.getRawButton(1);
+		FrontLeft.set(-left.getRawAxis(1));
+		RearLeft.set(-left.getRawAxis(1));
+		FrontRight.set(right.getRawAxis(1));
+		RearRight.set(right.getRawAxis(1));
+		//Left.set(ControlMode.PercentOutput, Xbox.getRawAxis(5));
+		//Middle.set(ControlMode.PercentOutput, 50);
+		//Right.set(ControlMode.PercentOutput, 100);
 		//gyro configuration
 		double angle = gyro.getAngle();
 		double rate = gyro.getRate();
