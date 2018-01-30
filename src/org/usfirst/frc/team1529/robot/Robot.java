@@ -101,38 +101,40 @@ public class Robot extends IterativeRobot {
 		
 		System.out.println(enc.getDistance());
 		
-		FrontLeft.set(.5);
-		RearLeft.set(.5);
-		FrontRight.set(-.5);
-		RearRight.set(-.5);
-		
-		if(enc.getDistance() > -144 + ENCODER_OFFSET){
+		if(enc.getDistance() > -144 + ENCODER_OFFSET) {
 
-			FrontLeft.set(.5);
-			FrontRight.set(.5);
-			RearLeft.set(.5);
-			RearRight.set(.5);
-			gyro.reset();
-		}
+            FrontLeft.set(.5);
+            RearLeft.set(.5);
+            FrontRight.set(-.5);
+            RearRight.set(-.5);
+        }
+
+        else if(gyro.getAngle() < 90) {
+
+            FrontLeft.set(.5);
+            FrontRight.set(.5);
+            RearLeft.set(.5);
+            RearRight.set(.5);
+            enc.reset();
+        }
+
+        else if(enc.getDistance() > -144 + ENCODER_OFFSET) {
+            FrontLeft.set(.5);
+            RearLeft.set(.5);
+            FrontRight.set(-.5);
+            RearRight.set(-.5);
+        }
 		
-		if(gyro.getAngle() > 90){
-		FrontLeft.set(.5);
-		RearLeft.set(.5);
-		FrontRight.set(-.5);
-		RearRight.set(-.5);
-		enc.reset();
-		}
-		
-		if(enc.getDistance() > -144 + ENCODER_OFFSET){
-			
-			FrontLeft.set(0);
-			FrontRight.set(-0);
-			RearLeft.set(0);
-			RearRight.set(-0);
-			
-		}
-		
-	}
+        else {
+            FrontLeft.set(0);
+            FrontRight.set(-0);
+            RearLeft.set(0);
+            RearRight.set(-0);
+
+        }
+
+    }
+	
 	
 	@Override
 	public void teleopInit(){
