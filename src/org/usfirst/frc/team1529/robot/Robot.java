@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -38,6 +39,7 @@ public class Robot extends IterativeRobot {
 	Talon RearLeft;
 	Talon FrontRight;
 	Talon RearRight;
+	DifferentialDrive mydrive;
 	//Joystick Xbox = new Joystick(0);
 	private ADXRS450_Gyro gyro;
 	private double kp = 0.03;
@@ -65,8 +67,11 @@ public class Robot extends IterativeRobot {
 		right = new Joystick(3);
 		 FrontLeft = new Talon(7);
 		 RearLeft = new Talon(6);
+		 SpeedControllerGroup left = new SpeedControllerGroup(FrontLeft, RearLeft);
 		 FrontRight = new Talon(9);
 		 RearRight =new Talon(8);
+		 SpeedControllerGroup right = new SpeedControllerGroup(FrontRight, RearRight);
+		 mydrive =  new DifferentialDrive(left, right);
 		 enc = new Encoder(8,9,false, Encoder.EncodingType.k4X);
 		 enc.setDistancePerPulse((7.5*3.14159)/360);
 		 
@@ -100,37 +105,28 @@ public class Robot extends IterativeRobot {
 		//System.out.println(gyro.getAngle());
 		
 		System.out.println(enc.getDistance());
+		if(enc.getDistance() < -144)
+			step = 1;
 		
-		if(enc.getDistance() > -144 + ENCODER_OFFSET) {
+		if(enc.getDistance() > -144 + ENCODER_OFFSET && step==0) {
 
-            FrontLeft.set(.5);
-            RearLeft.set(.5);
-            FrontRight.set(-.5);
-            RearRight.set(-.5);
+			mydrive.tankDrive(.5, .5, false);
         }
 
-        else if(gyro.getAngle() < 90) {
-
-            FrontLeft.set(.5);
-            FrontRight.set(.5);
-            RearLeft.set(.5);
-            RearRight.set(.5);
-            enc.reset();
+        else if(gyro.getAngle() < 80 && step == 1) {
+       
+        	enc.reset();
+        	mydrive.tankDrive(.5, -.5, false);
         }
 
         else if(enc.getDistance() > -144 + ENCODER_OFFSET) {
-            FrontLeft.set(.5);
-            RearLeft.set(.5);
-            FrontRight.set(-.5);
-            RearRight.set(-.5);
+        	step=2;
+        	mydrive.tankDrive(.5, .5, false);
         }
 		
         else {
-            FrontLeft.set(0);
-            FrontRight.set(-0);
-            RearLeft.set(0);
-            RearRight.set(-0);
-
+        	
+        	mydrive.tankDrive(0, 0, false);
         }
 
     }
@@ -164,23 +160,23 @@ public class Robot extends IterativeRobot {
 		//double axis = Xbox.getRawAxis(1);
 		//double axis1 = Xbox.getRawAxis(5);
 	
-		left.getRawAxis(1);
-		right.getRawAxis(1);
+		//left.getRawAxis(1);
+		//right.getRawAxis(1);
 	
 		 //xbox configuration
 		//double button = Xbox.getRawButton(1);
-		FrontLeft.set(-left.getRawAxis(1));
+		/*FrontLeft.set(-left.getRawAxis(1));
 		RearLeft.set(-left.getRawAxis(1));
 		FrontRight.set(right.getRawAxis(1));
-		RearRight.set(right.getRawAxis(1));
+		RearRight.set(right.getRawAxis(1));*/
 		//Left.set(ControlMode.PercentOutput, Xbox.getRawAxis(5));
 		//Middle.set(ControlMode.PercentOutput, 50);
 		//Right.set(ControlMode.PercentOutput, 100);
 		//gyro configuration
 		double angle = gyro.getAngle();
 		double rate = gyro.getRate();
-		System.out.println(angle);
-		
+		System.out.println(enc.getDistance());
+		mydrive.tankDrive(.5, .5, false);
 	}
 
 	/**
